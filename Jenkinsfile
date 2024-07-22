@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'node 14'
+        nodejs 'node'
     }
 
     environment {
@@ -14,6 +14,14 @@ pipeline {
             steps {
                 // Checkout the code from GitHub
                 git branch: 'main', url: 'https://github.com/dimmas893/simple-node-js-react-npm-app.git', credentialsId: "${GIT_CREDENTIALS_ID}"
+            }
+        }
+        stage('Verify Node.js and npm') {
+            steps {
+                // Verify Node.js installation
+                sh 'node -v'
+                // Verify npm installation
+                sh 'npm -v'
             }
         }
         stage('Install Dependencies') {
