@@ -1,31 +1,38 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:6-alpine'
-            args '-p 3000:3000'
-        }
+    agent any
+
+    tools {
+        nodejs 'node 14'
     }
-     environment {
-            CI = 'true'
-        }
+
+    environment {
+        GIT_CREDENTIALS_ID = 'c67d0741-e72c-44a4-85dd-52dd554d4244'
+    }
+
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
+                // Checkout the code from GitHub
+                git branch: 'main', url: 'https://github.com/dimmas893/simple-node-js-react-npm-app.git', credentialsId: "${GIT_CREDENTIALS_ID}"
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                // Install project dependencies
                 sh 'npm install'
             }
         }
-        stage('Test') {
-                    steps {
-                        sh './jenkins/scripts/test.sh'
-                    }
-                }
-                stage('Deliver') {
-                            steps {
-                                sh './jenkins/scripts/deliver.sh'
-                                input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                                sh './jenkins/scripts/kill.sh'
-                            }
-                        }
-
+        stage('Build') {
+            steps {
+                // Build the React project
+                sh 'npm run build'
+            }
+        }
+        stage('Archive') {
+            steps {
+                // Archive the build output
+                archiveArtifacts artifacts: 'build/**', allowEmptyArchive: true
+            }
+        }
     }
 }
